@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>2 Days Left – Love Letters Puzzle</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f6d365, #fda085);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 90%;
+    }
+
+    h2 {
+      color: #d63031;
+    }
+
+    .hint {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #636e72;
+    }
+
+    .scroll-track {
+      display: flex;
+      overflow-x: auto;
+      gap: 20px;
+      padding: 10px;
+      border: 2px dashed #dfe6e9;
+      border-radius: 15px;
+      background: #fefefe;
+      scroll-snap-type: x mandatory;
+    }
+
+    .envelope {
+      scroll-snap-align: center;
+      font-size: 35px;
+      padding: 20px;
+      background: #ffeaa7;
+      border-radius: 15px;
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.2s;
+    }
+
+    .envelope.dragging {
+      opacity: 0.5;
+      transform: scale(1.1);
+    }
+
+    .message {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 25px;
+      font-size: 16px;
+      background: #e17055;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>📩 2 Days Left – Love Letters Puzzle</h2>
+  <div class="hint">Drag the envelopes into the correct order to unlock the surprise 💘</div>
+  <div class="scroll-track" id="track">
+    <div class="envelope" draggable="true" data-symbol="💍">💍</div>
+    <div class="envelope" draggable="true" data-symbol="🕊️">🕊️</div>
+    <div class="envelope" draggable="true" data-symbol="💌">💌</div>
+    <div class="envelope" draggable="true" data-symbol="🎶">🎶</div>
+    <div class="envelope" draggable="true" data-symbol="🎉">🎉</div>
+    <div class="envelope" draggable="true" data-symbol="💖">💖</div>
+  </div>
+  <button onclick="checkOrder()">Submit</button>
+  <div class="message" id="result"></div>
+</div>
+
+<script>
+  const correctOrder = ["💌", "💖", "🎶", "💍", "🎉", "🕊️"];
+  const track = document.getElementById('track');
+  let draggedItem = null;
+
+  document.querySelectorAll('.envelope').forEach(item => {
+    item.addEventListener('dragstart', () => {
+      draggedItem = item;
+      item.classList.add('dragging');
+    });
+
+    item.addEventListener('dragend', () => {
+      draggedItem = null;
+      item.classList.remove('dragging');
+    });
+  });
+
+  track.addEventListener('dragover', e => {
+    e.preventDefault();
+    const afterElement = getDragAfterElement(track, e.clientX);
+    if (afterElement == null) {
+      track.appendChild(draggedItem);
+    } else {
+      track.insertBefore(draggedItem, afterElement);
+    }
+  });
+
+  function getDragAfterElement(container, x) {
+    const draggableElements = [...container.querySelectorAll('.envelope:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = x - box.left - box.width / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
+      }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+
+  function checkOrder() {
+    const symbols = Array.from(track.children).map(el => el.dataset.symbol);
+    const result = document.getElementById("result");
+    if (JSON.stringify(symbols) === JSON.stringify(correctOrder)) {
+      result.style.color = "green";
+      result.textContent = "🎊 Correct Order! 2 Days Left to the Celebration of Love 💖";
+    } else {
+      result.style.color = "red";
+      result.textContent = "❌ Incorrect! Shuffle the story again.";
+    }
+  }
+</script>
+
+</body>
+</html>
